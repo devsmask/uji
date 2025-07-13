@@ -1,50 +1,55 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <title>Submit Invoice</title>
+  <meta charset="UTF-8">
+  <title>CRUD Sederhana</title>
 </head>
 <body>
-  <h2>Submit Invoice</h2>
-  <form id="invoiceForm">
-    <label>Nama:
-      <input type="text" name="nama" required>
-    </label><br>
-    <label>Tanggal:
-      <input type="date" name="tanggal" required>
-    </label><br>
-    <label>Total:
-      <input type="number" name="total" required>
-    </label><br>
-    <button type="submit">Submit</button>
+  <h2>Tambah Data</h2>
+  <form id="form">
+    <input type="text" name="nama" placeholder="Nama" required><br>
+    <input type="email" name="email" placeholder="Email" required><br>
+    <button type="submit">Simpan</button>
   </form>
 
-  <div id="result"></div>
+  <hr>
+  <h3>Data Tersimpan</h3>
+  <button onclick="loadData()">Muat Ulang</button>
+  <ul id="listData"></ul>
+
   <script>
-  const scriptURL = 'https://script.google.com/macros/s/AKfycbzPIUcg_fNnSiBtGUgrqgJjCFql-NIo_RPmlcyKSXzRpIv9d1TUixIryHtXtCFUvBM0/exec';
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbxeNEmMrwsOtN7VwZLPBHJkPHQ4WDq4pGytUv7tlTsp9ymI6vAkIegKbr2A8U9c03Zx/exec';
 
-  document.getElementById("invoiceForm").addEventListener("submit", async function(e) {
-    e.preventDefault();
-    const form = e.target;
-    const data = {
-      nama: form.nama.value,
-      tanggal: form.tanggal.value,
-      total: form.total.value
-    };
-
-    const resultDiv = document.getElementById("result");
-    resultDiv.innerHTML = "Mengirim...";
-
-    try {
+    document.getElementById('form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const form = e.target;
+      const data = {
+        action: 'create',
+        nama: form.nama.value,
+        email: form.email.value
+      };
       const params = new URLSearchParams(data);
       const res = await fetch(`${scriptURL}?${params.toString()}`);
       const json = await res.json();
-      resultDiv.innerHTML = `<p>Berhasil! Link PDF: <a href="${json.pdfUrl}" target="_blank">Download</a></p>`;
-    } catch (err) {
-      resultDiv.innerHTML = "Gagal mengirim data.";
-      console.error(err);
+      alert(json.message);
+      form.reset();
+      loadData();
+    });
+
+    async function loadData() {
+      const res = await fetch(`${scriptURL}?action=read`);
+      const json = await res.json();
+      const list = document.getElementById('listData');
+      list.innerHTML = '';
+      json.data.forEach(item => {
+        const li = document.createElement('li');
+        li.textContent = `${item.nama} (${item.email})`;
+        list.appendChild(li);
+      });
     }
-  });
-</script>
+
+    // Muat data awal saat halaman dibuka
+    loadData();
+  </script>
 </body>
 </html>
